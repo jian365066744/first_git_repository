@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.2.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-4.2.xsd 
+	http://www.springframework.org/schema/jee 
+	http://www.springframework.org/schema/jee/spring-jee-4.2.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-4.2.xsd 
+	http://www.springframework.org/schema/jms 
+	http://www.springframework.org/schema/jms/spring-jms-3.0.xsd 
+	http://activemq.apache.org/schema/core 
+	http://activemq.apache.org/schema/core/activemq-core.xsd
+	"
+	default-lazy-init="true">
+	
+	<!-- jms配置 -->
+	<!-- 配置connectionFactory -->
+    <bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+        destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL">
+                	<!-- 
+                	<value>failover:(tcp://192.168.2.7:51520,tcp://192.168.3.44:51511)?randomize=false</value>
+                	 -->
+                	 <!--  -->
+                    <value>tcp://192.168.2.4:61616</value>
+                </property>
+                <property name="useAsyncSend">
+                	<value>true</value>
+                </property>
+                <property name="copyMessageOnSend" value="false" />
+                <property name="nonBlockingRedelivery" value="true" />
+                <!-- -->
+                <property name="userName"><value>jspt_ebpp_jms</value></property>
+                <property name="password"><value>jspt_ebpp_jms</value></property>
+                 
+            </bean>
+        </property>
+    </bean>
+    
+	<!-- Spring JMS Template -->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory">
+            <ref bean="pooledConnectionFactory" />
+        </property>
+        <property name="defaultDestinationName" value="qd_queue_check_caches" />
+        <!-- 区别它采用的模式为false是p2p为true是订阅 -->
+        <property name="pubSubDomain" value="false" />
+        
+        <!-- 非持久保存消息 -->
+    	<property name="deliveryMode" value="1" />
+    	<!-- 不使用事务 -->
+    	<property name="sessionTransacted" value="false" />
+    	<property name="messageIdEnabled" value="true" />
+    	<!-- 消息过期时间-单位:毫秒  24*60*60*1000 -->
+    	<property name="timeToLive" value="10" />
+    	
+    	<property name="receiveTimeout" value="-1"/>
+    </bean>
+	
+	<!-- 发送消息的目的地（一个队列） -->
+    <bean id="qd_queue_check_caches" class="org.apache.activemq.command.ActiveMQQueue">
+        <!-- 设置消息队列的名字 -->
+        <!-- <constructor-arg index="0" value="jfpt_qd_queuetest" /> -->
+        <!-- <constructor-arg index="0" value="qd_queue_update_cache" /> -->
+    </bean>
+	<!-- 
+	<jms:listener-container connection-factory="pooledConnectionFactory" acknowledge="transacted">
+	-->
+	<jms:listener-container connection-factory="pooledConnectionFactory" >
+		<!-- <jms:listener destination="jfpt_qd_queuetest" ref="testDispatcher" method="onMessage"/> -->
+		<jms:listener destination="qd_queue_check_caches" ref="testDispatcher" method="onMessageObject"/>
+	</jms:listener-container>
+
+</beans>

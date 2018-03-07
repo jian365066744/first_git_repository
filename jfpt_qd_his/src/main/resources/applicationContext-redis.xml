@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-4.2.xsd"
+	default-lazy-init="true">
+	
+	<!-- redis Cached -->
+	<bean id="cacheServiceImpl" class="com.ronglian.qd_qrcode.common.utils.cache.redisCachedClient"></bean>
+
+	<!-- redis配置 -->
+	<bean id="connectionInfo" class="org.modules.nosql.redis.pool.ConnectionInfo">
+		<property name="password" value="${redis.password}"></property>
+		<property name="database" value="${redis.database}"></property>
+		<property name="timeout" value="4000"></property>
+	</bean>
+
+	<bean id="jedisHostAndPort" class="redis.clients.jedis.HostAndPort">
+		<constructor-arg name="host" value="${redis.host}"></constructor-arg>
+		<constructor-arg name="port" value="${redis.port}"></constructor-arg>
+	</bean>
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig"></bean>
+	
+	<bean id="jedisPool" class="org.modules.nosql.redis.pool.JedisDirectPool">
+		<constructor-arg name="poolName" value="redisPool"></constructor-arg>
+		<constructor-arg name="address" ref="jedisHostAndPort"></constructor-arg>
+		<constructor-arg name="config" ref="jedisPoolConfig"></constructor-arg>
+		<constructor-arg name="connectionInfo" ref="connectionInfo"></constructor-arg>
+	</bean>
+	
+	<bean id="jedisTemplate" class="org.modules.nosql.redis.JedisTemplate">
+		<constructor-arg ref="jedisPool"></constructor-arg>
+	</bean>
+
+</beans>
