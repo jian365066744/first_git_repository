@@ -53,7 +53,7 @@ public class Anotation implements ApplicationContextAware,ApplicationListener {
 			Method[] methods = entry.getValue().getClass().getMethods();
 			for (Method m : methods) {
 				CacheResult crm = AnnotationUtils.findAnnotation(m, cacheResult);
-				System.out.println(crm.key());
+//				System.out.println(crm.key());
 			}
 		}
 		
