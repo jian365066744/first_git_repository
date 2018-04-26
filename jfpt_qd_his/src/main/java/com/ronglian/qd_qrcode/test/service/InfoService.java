@@ -3,6 +3,9 @@
  */
 package com.ronglian.qd_qrcode.test.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.ronglian.qd_qrcode.test.entity.Info;
 
 /** 
@@ -13,7 +16,12 @@ import com.ronglian.qd_qrcode.test.entity.Info;
 */
 public interface InfoService {
 
-	public void save(Info info) throws Exception;
+	public void save(Info info) ;
 	public Info getById(int id) throws Exception;
 	public Info getByAge(String age) throws Exception;
+	public List<Map<String,Object>> getAll(String sql) throws Exception;
+	
+	public void test1(String age) throws Exception;
+	public void test2(String name) ;
+	
 }
