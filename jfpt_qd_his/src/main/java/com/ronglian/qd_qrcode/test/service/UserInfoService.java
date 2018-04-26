@@ -11,4 +11,5 @@ public interface UserInfoService {
 	public List<UserInfo> findAll() throws Exception;
 	
 	public List<UserInfo> findBySql(String name) throws Exception;
+	
 }

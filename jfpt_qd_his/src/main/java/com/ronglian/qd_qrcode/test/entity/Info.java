@@ -45,7 +45,6 @@ public class Info implements Serializable{
 	public void setSex(String sex) {
 		this.sex = sex;
 	}
-	@ManyToOne
 	public String getAge() {
 		return age;
 	}

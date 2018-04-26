@@ -30,7 +30,8 @@
 		http://shardingjdbc.io/schema/shardingjdbc/masterslave
 		classpath:/META-INF/namespace/master-slave.xsd
 		">
-	
+	<!-- 动态代理暴露 -->
+	 <aop:aspectj-autoproxy expose-proxy="true"/>  
 	<!-- jms配置文件 -->
 	<import resource="applicationContext-jms.xml" />
 	
@@ -239,25 +240,22 @@
 		<property name="filters" value="stat" />
 	</bean>
 	
-	<masterslave:data-source id="msDataSource0" master-data-source-name="jfpt_qd_0" slave-data-source-names="jfpt_qd_0_0" strategy-type="RANDOM"/>
-	<masterslave:data-source id="msDataSource1" master-data-source-name="jfpt_qd_1" slave-data-source-names="jfpt_qd_1_1" strategy-type="RANDOM"/>
-	<masterslave:data-source id="msDataSource2" master-data-source-name="jfpt_qd_2" slave-data-source-names="jfpt_qd_2_2" strategy-type="RANDOM"/>
-	<!-- <masterslave:data-source id="msDataSource0" master-data-source-name="jfpt_qd_0" slave-data-source-names="jfpt_qd_0_0" strategy-ref="followRule"/>
-	<masterslave:data-source id="msDataSource1" master-data-source-name="jfpt_qd_1" slave-data-source-names="jfpt_qd_1_1" strategy-ref="followRule"/>
-	<masterslave:data-source id="msDataSource2" master-data-source-name="jfpt_qd_2" slave-data-source-names="jfpt_qd_2_2" strategy-ref="followRule"/> -->
+	<masterslave:data-source id="msDataSource0" master-data-source-name="jfpt_qd_0" slave-data-source-names="jfpt_qd_0_0" />
+	<masterslave:data-source id="msDataSource1" master-data-source-name="jfpt_qd_1" slave-data-source-names="jfpt_qd_1_1" />
+	<masterslave:data-source id="msDataSource2" master-data-source-name="jfpt_qd_2" slave-data-source-names="jfpt_qd_2_2" />
 	<!-- 路由表、路由库规则配置，可以指定algorithm-class专门自己实现具体的路由规则，也可以使用表达式-->
 
 	<!-- <sharding:strategy id="userDatabaseShardingStrategy" sharding-columns="name" algorithm-class="com.ronglian.qd_qrcode.sharding.algorithm.UserDatabaseShardingAlgorithm"/> -->
 	<!--<sharding:strategy id="userTableShardingStrategy" sharding-columns="name" algorithm-class="com.ronglian.qd_qrcode.sharding.algorithm.UserTableShardingAlgorithm"/> -->
 
 	<!-- 使用表达式方式 -->
-	<sharding:inline-strategy id="userDatabaseShardingStrategy" sharding-column="name" algorithm-expression="msDataSource${Integer.valueOf(name.substring(name.length()-1))  % 3}"/>
-	<sharding:inline-strategy id="userTableShardingStrategy" sharding-column="name" algorithm-expression="userinfo"/>
-
+	<sharding:inline-strategy id="userDatabaseShardingStrategy" sharding-column="id" algorithm-expression="msDataSource${id  % 3}"/>
+<!-- 	<sharding:standard-strategy id="userDatabaseShardingStrategy" sharding-column="age" precise-algorithm-class="com.ronglian.qd_qrcode.sharding.algorithm.InfoDatabaseShardingAlgorithm"/>
+ -->
 	<sharding:data-source id="shardingDataSource">
 		<sharding:sharding-rule data-source-names="msDataSource0,msDataSource1,msDataSource2" >
 			<sharding:table-rules>
-				<sharding:table-rule logic-table="userinfo" actual-data-nodes="msDataSource${0..2}.userinfo" table-strategy-ref="userTableShardingStrategy" database-strategy-ref="userDatabaseShardingStrategy"/>
+				<sharding:table-rule logic-table="info" actual-data-nodes="msDataSource${0..2}.info"  database-strategy-ref="userDatabaseShardingStrategy"/>
 			</sharding:table-rules>
 		</sharding:sharding-rule>
 		<sharding:props>
@@ -266,7 +264,7 @@
 	</sharding:data-source>
     
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="shardingDataSource"/>
+		<property name="dataSource" ref="jfpt_qd_0"/>
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
 				<property name="generateDdl" value="true" />
@@ -283,6 +281,10 @@
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
             </props>
         </property>
+	</bean>
+	
+	<bean id="ebringJdbc" class="com.ronglian.qd_qrcode.common.utils.EbringJdbc">
+	<property name="dataSource" ref="jfpt_qd_0"></property>
 	</bean>
 	
 	<!-- 配置事务管理器 -->
