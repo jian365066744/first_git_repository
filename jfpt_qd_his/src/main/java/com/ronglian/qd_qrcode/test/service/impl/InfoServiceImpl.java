@@ -160,4 +160,19 @@ public class InfoServiceImpl implements InfoService{
 		}
 	}
 
+
+	/* (non-Javadoc)
+	 * @see com.ronglian.qd_qrcode.test.service.InfoService#TestGetStatus()
+	 */
+	@Override
+	@Transactional
+	public String TestGetStatus() {
+			//找出最近状态为0的info
+			Info info = infoDao.findByStatus();
+			//将这条记录更新为1
+			infoDao.updateStatus(info.getId());
+			return info.getName();
+		
+	}
+
 }
